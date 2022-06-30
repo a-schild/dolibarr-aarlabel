@@ -1,19 +1,18 @@
 <?php
 require_once "../lib/IOutputdocument.php";
-		require_once DOL_DOCUMENT_ROOT . '/includes/phpoffice/autoloader.php';
-		require_once DOL_DOCUMENT_ROOT . '/includes/Psr/autoloader.php';
-		require_once PHPEXCELNEW_PATH . 'Spreadsheet.php'; 
+//require_once DOL_DOCUMENT_ROOT . "/includes/phpoffice/phpexcel/Classes/PHPExcel.php";
+//require_once DOL_DOCUMENT_ROOT . "/includes/phpoffice/phpspreadsheet/src/autoloader.php";
+require_once DOL_DOCUMENT_ROOT . "/core/modules/export/export_excel2007.modules.php";
 
 class PHPExceloutput implements Outputdocument
 {
-    private $objPHPExcel;
+    private $spreadsheet;
     private $currRow= 1;
     private $fileName= "output.xlsx";
 
     public function getContent()
     {
-		 set_time_limit ( 120 );
-        $objWriter = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($this->objPHPExcel, "Xlsx");
+        //$objWriter = new ExportExcel2007($this->spreadsheet);
         
         // We'll be outputting an excel file
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -23,20 +22,27 @@ class PHPExceloutput implements Outputdocument
         header('Cache-Control: max-age=0');
         
         // Write file to the browser
-        $objWriter->save('php://output');
+        $writer = new PhpOffice\PhpSpreadsheet\Writer\Xlsx($this->spreadsheet);
+        //$writer->save('hello world.xlsx');        
+        $writer->save('php://output');
         // $this->SaveViaTempFile($objWriter);
     }
     
     public function startDocument()
     {
+		require_once DOL_DOCUMENT_ROOT.'/includes/phpoffice/phpspreadsheet/src/autoloader.php';
+		require_once DOL_DOCUMENT_ROOT.'/includes/Psr/autoloader.php';
+		require_once PHPEXCELNEW_PATH.'Spreadsheet.php';
+		require_once PHPEXCELNEW_PATH.'Writer/Xlsx.php';
+        
         // PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
-        $this->objPHPExcel= new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-        $this->objPHPExcel->setActiveSheetIndex(0);
-        $this->objPHPExcel->getProperties()->setCreator("Aarboard");
-        $this->objPHPExcel->getProperties()->setLastModifiedBy("Aarboard Dolibarr");
-        $this->objPHPExcel->getProperties()->setTitle("Export labels");
-        //$this->objPHPExcel->getProperties()->setSubject("Office 2007 XLSX Test Document");
-        //$this->objPHPExcel->getProperties()->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.");
+        $this->spreadsheet= new PhpOffice\PhpSpreadsheet\Spreadsheet(); // new PHPExcel();
+        $this->spreadsheet->setActiveSheetIndex(0);
+        $this->spreadsheet->getProperties()->setCreator("Aarboard");
+        $this->spreadsheet->getProperties()->setLastModifiedBy("Aarboard Dolibarr");
+        $this->spreadsheet->getProperties()->setTitle("Export labels");
+        //$this->spreadsheet->getProperties()->setSubject("Office 2007 XLSX Test Document");
+        //$this->spreadsheet->getProperties()->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.");
     }
     
     static function SaveViaTempFile($objWriter)
@@ -57,7 +63,7 @@ class PHPExceloutput implements Outputdocument
         $col= 'A';
         foreach ($headerNames as $key)
         {
-            $this->objPHPExcel->getActiveSheet()->SetCellValue($col++.$this->currRow, $key);
+            $this->spreadsheet->getActiveSheet()->SetCellValue($col++.$this->currRow, $key);
         }
         $this->currRow++;
     }
@@ -73,7 +79,7 @@ class PHPExceloutput implements Outputdocument
             }
             else
             {
-                $this->objPHPExcel->getActiveSheet()->SetCellValue($col++.$this->currRow, $f);
+                $this->spreadsheet->getActiveSheet()->SetCellValue($col++.$this->currRow, $f);
             }
         }
         $this->currRow++;

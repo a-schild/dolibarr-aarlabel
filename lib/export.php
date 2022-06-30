@@ -8,6 +8,7 @@ global $langs, $user, $db;
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
+require_once DOL_DOCUMENT_ROOT . "/includes/phpoffice/phpspreadsheet/src/autoloader.php";
 require_once  '../lib/aarlabel.lib.php';
 require_once  '../lib/xlsxwriter.class.php';
 require_once  "../lib/Htmloutput.php";
